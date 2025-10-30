@@ -10,6 +10,13 @@ echo "PostgreSQL is ready!"
 python manage.py collectstatic --noinput
 python manage.py migrate --noinput
 
+if [ -f /app/db.json ]; then
+  echo "Loading initial data..."
+  # удаляем BOM на лету
+  sed -i '1s/^\xEF\xBB\xBF//' /app/db.json || true
+  python manage.py loaddata /app/db.json || true
+fi
+
 echo "Starting Gunicorn..."
 exec gunicorn furniture_site.wsgi:application \
     --bind 0.0.0.0:8000 \

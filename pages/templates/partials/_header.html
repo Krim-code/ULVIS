@@ -63,9 +63,11 @@
         <a class="mobile-link" href="/contacts/">Контакты</a>
       </nav>
       <div class="mt-5 grid gap-3">
-        <a href="tel:+78001234568"
+        {% if contact and contact.phone %}
+        <a href="tel:{{ contact.phone }}"
            class="inline-flex items-center justify-center h-11 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-semibold">
-          8 (800) 123-45-68
+           {{ contact.phone }}
+        {% endif %}
         </a>
         <button class="inline-flex items-center justify-center h-11 rounded-xl bg-white/10 hover:bg-white/20 js-open-measure" data-open="measure">
           Пригласить замерщика
