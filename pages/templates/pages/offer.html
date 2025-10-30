@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ offer.title }} — ULVIS{% endblock %}
+
+{% block content %}
+<section class="relative h-[38vh] min-h-[320px] overflow-hidden">
+  <div class="absolute inset-0 bg-gradient-to-br from-slate-900 to-slate-800"></div>
+  <div class="absolute inset-0 bg-[radial-gradient(600px_300px_at_50%_0%,rgba(16,185,129,.22),transparent_60%)]"></div>
+  <div class="relative z-10 max-w-7xl mx-auto px-6 h-full flex items-end pb-10">
+    <div class="text-white">
+      <h1 class="text-4xl md:text-6xl font-black tracking-tight">{{ offer.title }}</h1>
+      <p class="text-white/80 mt-2 text-sm">Обновлено: {{ offer.updated_at|date:"d.m.Y" }}</p>
+    </div>
+  </div>
+</section>
+
+<section class="max-w-7xl mx-auto px-6 py-10">
+  {% if offer.file %}
+    <div class="mb-4">
+      <a href="?download=1"
+         class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold">
+        Скачать PDF
+      </a>
+    </div>
+    <div class="rounded-2xl overflow-hidden ring-1 ring-slate-200 bg-white">
+      <object data="{{ offer.file.url }}" type="application/pdf" class="w-full h-[80vh]">
+        <iframe src="{{ offer.file.url }}" class="w-full h-[80vh]"></iframe>
+      </object>
+    </div>
+  {% else %}
+    <article class="prose prose-slate max-w-none bg-white rounded-2xl p-6 md:p-8 ring-1 ring-slate-200">
+      {{ offer.html|safe }}
+    </article>
+  {% endif %}
+</section>
+{% endblock %}

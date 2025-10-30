@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page.title|default:"Контакты" }} — ULVIS{% endblock %}
+
+
+
+{% block content %}
+
+{# HERO — остаётся с фоном #}
+<section class="relative h-[56vh] min-h-[480px] overflow-hidden">
+  {% if page and page.header_bg %}
+    <img src="{{ page.header_bg.url }}" class="absolute inset-0 w-full h-full object-cover scale-105" alt="">
+  {% else %}
+    <div class="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800"></div>
+  {% endif %}
+  <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/35 to-black/70"></div>
+
+  <div class="relative z-10 max-w-7xl mx-auto px-6 h-full flex items-end pb-12">
+    <div class="text-white">
+      <h1 class="text-4xl md:text-6xl font-black tracking-tight">{{ page.title|default:"Контакты" }}</h1>
+      {% if page.subtitle %}
+        <p class="mt-2 text-white/85 text-lg">{{ page.subtitle }}</p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+{# КОНТАКТНЫЕ КАРТЫ — на светлом фоне, не перекрывают фон #}
+<section class="bg-white py-16">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="grid md:grid-cols-3 gap-6">
+      <!-- Адрес -->
+      <div class="rounded-2xl p-6 shadow-lg ring-1 ring-slate-200 bg-white">
+        <div class="text-sm text-slate-500">Адрес</div>
+        <div class="mt-1 font-semibold text-slate-900">{{ page.address|default:"г. Москва" }}</div>
+      </div>
+
+      <!-- Телефон -->
+      <div class="rounded-2xl p-6 shadow-lg ring-1 ring-slate-200 bg-white">
+        <div class="text-sm text-slate-500">Телефон</div>
+        {% if page.phone %}
+          <a href="tel:{{ tel_href|default:page.phone }}" class="mt-1 block font-semibold text-emerald-600 hover:text-emerald-500">
+            {{ page.phone }}
+          </a>
+        {% else %}
+          <div class="mt-1 font-semibold text-slate-400">Не указан</div>
+        {% endif %}
+        {% if page.whatsapp or page.telegram or page.vk %}
+          <div class="mt-3 flex flex-wrap gap-3 text-sm">
+            {% if page.whatsapp %}<a href="{{ page.whatsapp }}" class="text-slate-600 hover:text-emerald-600">WhatsApp</a>{% endif %}
+            {% if page.telegram %}<a href="{{ page.telegram }}" class="text-slate-600 hover:text-emerald-600">Telegram</a>{% endif %}
+            {% if page.vk %}<a href="{{ page.vk }}" class="text-slate-600 hover:text-emerald-600">VK</a>{% endif %}
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Email -->
+      <div class="rounded-2xl p-6 shadow-lg ring-1 ring-slate-200 bg-white">
+        <div class="text-sm text-slate-500">Email</div>
+        {% if page.email %}
+          <a href="mailto:{{ page.email }}" class="mt-1 block font-semibold text-emerald-600 hover:text-emerald-500">
+            {{ page.email }}
+          </a>
+        {% else %}
+          <div class="mt-1 font-semibold text-slate-400">Не указан</div>
+        {% endif %}
+      </div>
+    </div>
+
+    {# График + реквизиты #}
+    <div class="mt-12 grid md:grid-cols-2 gap-6">
+      {% if page.schedule %}
+        <div class="rounded-2xl p-6 shadow-lg ring-1 ring-slate-200 bg-white">
+          <div class="text-sm text-slate-500">График работы</div>
+          <div class="mt-2 text-slate-800 whitespace-pre-line leading-relaxed">{{ page.schedule }}</div>
+        </div>
+      {% endif %}
+      {% if page.requisites %}
+        <div class="rounded-2xl p-6 shadow-lg ring-1 ring-slate-200 bg-white">
+          <div class="text-sm text-slate-500">Реквизиты</div>
+          <div class="mt-2 text-slate-800 whitespace-pre-line leading-relaxed">{{ page.requisites }}</div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+{# КАРТА — на всю ширину, без контейнера #}
+<section class="relative w-full mt-0">
+  {% if page.map_embed %}
+    <div class="w-full aspect-[16/6] overflow-hidden">
+      {{ page.map_embed|safe }}
+    </div>
+  {% elif page.map_lat and page.map_lng %}
+    <div id="map" class="w-full aspect-[16/6]"></div>
+  {% else %}
+    <div class="bg-slate-100 text-slate-500 grid place-items-center h-80">Карта не настроена</div>
+  {% endif %}
+</section>
+
+{% endblock %}

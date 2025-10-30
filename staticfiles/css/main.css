@@ -1,0 +1,136 @@
+/* Стеклянная карточка (без мига) */
+.glass-card{
+  background: rgba(20,22,26,0.18);                    /* стабильный фон */
+  border: 1px solid rgba(255,255,255,0.16);
+  box-shadow: 0 8px 30px rgba(0,0,0,.35);
+  backdrop-filter: saturate(140%) blur(12px);
+  -webkit-backdrop-filter: saturate(140%) blur(12px);
+  will-change: transform;                              /* подсказка композеру */
+}
+
+/* Фикс мигания при 3D-трансформах Swiper */
+#reviews-swiper .swiper-slide{
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+/* Белые стрелки внутри паддинга */
+:root{ --swiper-theme-color:#fff; --swiper-navigation-color:#fff; }
+#reviews-swiper .swiper-button-prev,
+#reviews-swiper .swiper-button-next{
+  top:55%; transform:translateY(-50%);
+  width:56px; height:56px; z-index:30;
+}
+#reviews-swiper .swiper-button-prev{ left:clamp(8px,2vw,24px); }
+#reviews-swiper .swiper-button-next{ right:clamp(8px,2vw,24px); }
+#reviews-swiper .custom-nav::after{
+  color:#fff!important; font-size:40px!important; font-weight:800;
+  text-shadow:0 0 10px rgba(255,255,255,.45);
+}
+
+/* Буллеты */
+#reviews-swiper .swiper-pagination-bullet{
+  background:rgba(255,255,255,.65); opacity:.6; width:10px; height:10px;
+}
+#reviews-swiper .swiper-pagination-bullet-active{
+  background:#fff; opacity:1; transform:scale(1.25);
+  box-shadow:0 0 0 3px rgba(255,255,255,.25);
+}
+
+/* Фоллбек если браузер не поддерживает backdrop-filter */
+@supports not (backdrop-filter: blur(8px)){
+  .glass-card{ background: rgba(20,22,26,0.55); }
+}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.animate-fadeIn{animation:fadeIn .35s ease-out both}
+.text-balance { text-wrap: balance; }
+.text-pretty { text-wrap: pretty; }
+
+/* фон шапки */
+#site-header .header-surface{
+  background: transparent;
+}
+#site-header.is-scrolled .header-surface{
+  background: linear-gradient(to bottom, rgba(2,6,23,.75), rgba(2,6,23,.55));
+  backdrop-filter: saturate(140%) blur(8px);
+  -webkit-backdrop-filter: saturate(140%) blur(8px);
+  box-shadow: 0 6px 24px rgba(0,0,0,.25);
+}
+
+/* underline-анимация у ссылок */
+.nav-link{ position:relative; padding:.25rem 0; }
+.nav-link:after{
+  content:""; position:absolute; left:0; bottom:-6px; height:2px; width:0;
+  background: linear-gradient(90deg,#10b981,#34d399);
+  transition:width .25s ease;
+}
+.nav-link:hover:after{ width:100%; }
+
+/* мобильные ссылки */
+.mobile-link{
+  padding:.75rem 0; border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.nav-link {
+  transition: color .2s ease, text-shadow .3s ease;
+}
+.nav-link:hover {
+  color: #6ee7b7; /* светло-зелёный */
+  text-shadow: 0 0 8px rgba(110,231,183,0.6);
+}
+
+/* кастомные стрелки */
+.custom-hero-nav {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 9999px;
+  /* background: rgba(255,255,255,0.2); */
+  backdrop-filter: blur(6px);
+  transition: all 0.3s ease;
+}
+.custom-hero-nav::after {
+  color: #fff;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+
+/* .custom-hero-nav:hover {
+  background: rgba(255,255,255,0.4);
+} */
+
+/* плавное масштабирование фона */
+.swiper-slide-active .swiper-zoom {
+  transform: scale(1);
+}
+.swiper-slide-prev .swiper-zoom,
+.swiper-slide-next .swiper-zoom {
+  transform: scale(1.08);
+}
+
+/* убираем синие точки */
+.swiper-pagination {
+  display: none !important;
+}
+
+#site-header .header-surface{ background: transparent; }
+#site-header.is-scrolled .header-surface{
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: saturate(140%) blur(8px);
+}
+/* мод для каталога */
+#site-header.header--overlay-dark .header-surface{
+  background: linear-gradient(to bottom, rgba(2,6,23,.85), rgba(2,6,23,0));
+  backdrop-filter: saturate(140%) blur(6px);
+}
+#site-header.header--overlay-dark .nav-link,
+#site-header.header--overlay-dark a,
+#site-header.header--overlay-dark .logo-text{
+  color:#fff!important;
+}
+#site-header.header--overlay-dark .nav-link:hover{ color:#6ee7b7!important; }
+#site-header.header--overlay-dark.is-scrolled .header-surface{
+  background: linear-gradient(to bottom, rgba(2,6,23,.9), rgba(2,6,23,0));
+}

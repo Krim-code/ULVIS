@@ -1,0 +1,520 @@
+{% load static %}
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>{% block title %}Мебель на заказ{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css">
+
+  <style>
+    
+#site-header .header-surface {
+  background: transparent;
+  transition: background .3s ease, backdrop-filter .3s ease, box-shadow .3s ease;
+}
+
+/* при скролле — полупрозрачный стеклянный navy */
+#site-header.is-scrolled .header-surface {
+  background: rgba(10, 25, 47, 0.55); /* 0.55 — идеально: читается и не глушит фон */
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  box-shadow: 0 2px 30px rgba(0, 0, 0, 0.35);
+}
+
+/* overlay-режим (каталог и прочее) */
+#site-header.header--overlay-dark .header-surface {
+background: rgba(10, 25, 47, 0.55); /* 0.55 — идеально: читается и не глушит фон */
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  box-shadow: 0 2px 30px rgba(0, 0, 0, 0.35);
+}
+
+/* при скролле на overlay — стеклянный navy */
+#site-header.header--overlay-dark.is-scrolled .header-surface {
+  background: rgba(10, 25, 47, 0.65);
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  box-shadow: 0 2px 25px rgba(0, 0, 0, 0.45);
+}
+
+/* белый текст + мягкий мятный hover */
+#site-header.header--overlay-dark .nav-link,
+#site-header.header--overlay-dark a,
+#site-header.header--overlay-dark .logo-text {
+  color: #fff !important;
+}
+#site-header.header--overlay-dark .nav-link:hover {
+  color: #5fffd7 !important;
+}
+  </style>
+</head>
+
+<body class="text-slate-900">
+    {% block header %}
+    {% include "partials/_header.html" with header_class="" %}
+  {% endblock %}
+<main class="flex-1">
+  {% block content %}{% endblock %}
+</main>
+  
+
+
+
+
+
+{% if cta %}
+<section id="lead" class="relative overflow-hidden" style="scroll-margin-top: 96px;">
+  {% if cta.bg_image %}
+    <img src="{{ cta.bg_image.url }}" class="absolute inset-0 w-full h-full object-cover" alt="">
+  {% else %}
+    <img src="{% static 'img/hero.jpg' %}" class="absolute inset-0 w-full h-full object-cover" alt="">
+  {% endif %}
+
+  <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/35 to-black/60"></div>
+
+  <div class="relative max-w-4xl mx-auto px-6 py-20">
+    <h2 class="text-3xl md:text-4xl font-extrabold text-white drop-shadow mb-3">
+      {{ cta.title }}
+    </h2>
+    {% if cta.subtitle %}
+      <p class="text-white/85 mb-6">{{ cta.subtitle }}</p>
+    {% endif %}
+
+    <form id="lead-form" action="{% url 'lead_submit' %}" method="post"
+          class="glass-card rounded-2xl p-6 md:p-8 grid gap-4" novalidate>
+      {% csrf_token %}
+      <div class="grid md:grid-cols-2 gap-4">
+        <input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off">
+        <input name="name" placeholder="Ваше имя"
+               class="border border-white/20 bg-white/80 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+               required>
+        <input name="phone" placeholder="+7 (___) ___-__-__"
+               pattern="^(?:\+7|8)\s*\(?\d{3}\)?\s*-?\s*\d{3}\s*-?\s*\d{2}\s*-?\s*\d{2}$"
+               title="+7XXXXXXXXXX или 8XXXXXXXXXX"
+               class="border border-white/20 bg-white/80 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+               required>
+      </div>
+      <textarea name="message" placeholder="Опишите проект"
+                class="border border-white/20 bg-white/80 rounded-xl p-3 min-h-[110px] focus:outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
+
+      <button type="submit" class="mt-2 inline-flex items-center justify-center px-6 py-3 rounded-xl font-semibold
+                     text-white bg-emerald-600 hover:bg-emerald-500 active:scale-[.99]
+                     shadow-[0_8px_30px_rgba(16,185,129,.35)]">
+        {{ cta.cta_text|default:"Отправить" }}
+      </button>
+
+      <div id="lead-msg" class="text-sm mt-1" aria-live="polite"></div>
+    </form>
+  </div>
+</section>
+{% endif %}
+
+
+
+<!-- MODAL: Пригласить замерщика -->
+<div id="measure-modal"
+     class="fixed inset-0 z-50 hidden items-center justify-center">
+  <!-- фон -->
+  <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+
+  <!-- диалог -->
+  <div class="relative w-[92vw] max-w-md bg-white rounded-2xl shadow-2xl p-6 md:p-7
+              animate-[fadeIn_.22s_ease-out]">
+    <button type="button" id="measure-close"
+            class="absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-600">
+      ✕
+    </button>
+
+    <h3 class="text-2xl font-extrabold text-slate-900 text-center">Пригласить замерщика</h3>
+    <p class="text-slate-600 text-center mt-1">Наш менеджер свяжется с вами в удобное время</p>
+
+    <form id="measure-form" action="{% url 'lead_submit' %}" method="post" class="mt-5 grid gap-3.5" novalidate>
+      {% csrf_token %}
+      <input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off">
+      <input type="hidden" name="source" value="measure_modal">
+
+      <input name="name" placeholder="Ваше имя *" autocomplete="name"
+             class="border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-emerald-500" required>
+
+      <input name="phone" placeholder="+7 (___) ___-__-__ *" inputmode="tel" autocomplete="tel"
+             class="border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-emerald-500" required>
+
+      <textarea name="message" placeholder="Ваш вопрос"
+                class="border border-slate-200 rounded-xl p-3 min-h-[90px] focus:outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
+
+      <label class="flex items-start gap-2 text-sm text-slate-600 select-none">
+        <input id="measure-consent" type="checkbox" class="mt-1">
+        Согласие на <a href="/privacy/" class="text-emerald-600 hover:underline">обработку данных</a>
+      </label>
+
+      <button type="submit"
+        class="mt-1 inline-flex items-center justify-center px-6 py-3 rounded-xl font-semibold
+               text-white bg-emerald-600 hover:bg-emerald-500 active:scale-[.99]
+               shadow-[0_8px_30px_rgba(16,185,129,.35)]">
+        Отправить
+      </button>
+
+      <div id="measure-msg" class="text-sm min-h-[1.25rem]" aria-live="polite"></div>
+    </form>
+  </div>
+</div>
+
+<style>
+@keyframes fadeIn {from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none}}
+</style>
+
+
+
+
+{% include "partials/_footer.html" %}
+
+
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    GLightbox({ selector: '.glightbox', touchNavigation: true, loop: true });
+  });
+  </script>
+  <script>
+  // Masonry на CSS Grid без либ
+  function relayoutMasonry() {
+    const grid = document.getElementById('gallery-grid');
+    if (!grid) return;
+    const rowH = parseInt(getComputedStyle(grid).getPropertyValue('--rowh')) || 8;
+    const gap = parseInt(getComputedStyle(grid).gap) || 0;
+
+    grid.querySelectorAll('.masonry-item').forEach(item => {
+      const content = item.querySelector('.masonry-content');
+      if (!content) return;
+      const height = content.getBoundingClientRect().height;
+      const span = Math.ceil((height + gap) / (rowH + gap));
+      item.style.gridRowEnd = `span ${span}`;
+    });
+  }
+
+  // Пересчёт после загрузки, ресайза и подзагрузки картинок
+  function setupMasonryObservers() {
+    const grid = document.getElementById('gallery-grid');
+    if (!grid) return;
+
+    // пересчитываем когда картинки загрузились
+    grid.querySelectorAll('img').forEach(img => {
+      if (img.complete) return; // уже загружена
+      img.addEventListener('load', relayoutMasonry);
+      img.addEventListener('error', relayoutMasonry);
+    });
+
+    // если caption/hover влияет на высоту — наблюдаем
+    const ro = new ResizeObserver(relayoutMasonry);
+    ro.observe(grid);
+
+    window.addEventListener('load', relayoutMasonry);
+    window.addEventListener('resize', () => { clearTimeout(window.__msR); window.__msR = setTimeout(relayoutMasonry, 80); });
+    relayoutMasonry();
+  }
+
+  document.addEventListener('DOMContentLoaded', setupMasonryObservers);
+</script>
+<script>
+  // инициализация после загрузки Swiper (скрипт в base.html)
+  document.addEventListener('DOMContentLoaded', () => {
+    new Swiper('.swiper', {
+      loop: true,
+      speed: 700,
+      autoplay: { delay: 4000, disableOnInteraction: false },
+      pagination: { el: '.swiper-pagination', clickable: true },
+      navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+      effect: 'fade', // можно 'slide' если хочешь
+      fadeEffect: { crossFade: true },
+    });
+  });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const container = document.querySelector('#reviews-swiper');
+    if (!container) return;
+
+    const slideCount = {{ reviews|length|default:0 }};
+    const loopEnabled = slideCount > 1;
+
+    const swiper = new Swiper(container, {
+      loop: loopEnabled,
+      speed: 700,
+      slidesPerView: 1,
+      spaceBetween: 30,
+      autoHeight: true,
+      autoplay: { delay: 5000, disableOnInteraction: false },
+      pagination: { el: '#reviews-swiper .swiper-pagination', clickable: true },
+      navigation: {
+      nextEl: '#reviews-swiper .swiper-button-next',
+      prevEl: '#reviews-swiper .swiper-button-prev',
+      },
+      on: {
+        init() {
+          setTimeout(() => swiper.updateAutoHeight(300), 400);
+        },
+        slideChange() {
+          swiper.updateAutoHeight(300);
+        }
+      }
+    });
+  });
+</script>
+
+<script>
+(function(){
+  const form = document.getElementById('lead-form');
+  if (!form) return;
+
+  const btn = form.querySelector('button[type="submit"]');
+  const msg = document.getElementById('lead-msg');
+  const nameInput = form.querySelector('input[name="name"]');
+  const phoneInput = form.querySelector('input[name="phone"]');
+  const csrfInput = form.querySelector('input[name="csrfmiddlewaretoken"]');
+
+  const reRU = /^(?:\+7|8)\s*\(?\d{3}\)?\s*-?\s*\d{3}\s*-?\s*\d{2}\s*-?\s*\d{2}$/;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    msg.textContent = '';
+    msg.className = 'text-sm mt-1';
+
+    const name = nameInput.value.trim();
+    const phone = phoneInput.value.trim();
+    if (!name) { msg.textContent = 'Введите имя.'; msg.classList.add('text-red-200'); return; }
+    if (!reRU.test(phone)) { msg.textContent = 'Телефон в формате +7XXXXXXXXXX или 8XXXXXXXXXX.'; msg.classList.add('text-red-200'); return; }
+
+    btn.disabled = true;
+    const prev = btn.textContent;
+    btn.textContent = 'Отправляем…';
+
+    try {
+      const fd = new FormData(form);
+      const resp = await fetch(form.action, {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRFToken': csrfInput?.value || '' },
+        body: fd
+      });
+
+      const ok = resp.ok;
+      const data = ok ? await resp.json().catch(()=>({ok:true})) : await resp.json().catch(()=>({error:'Ошибка отправки'}));
+      if (!ok || !data.ok) throw new Error(data.error || 'Ошибка отправки');
+
+      form.outerHTML = `
+        <div class="bg-emerald-600/90 text-white rounded-2xl p-6 md:p-8 text-center animate-fadeIn
+                    shadow-[0_8px_30px_rgba(16,185,129,.35)]">
+          <h3 class="text-2xl font-bold mb-2">Заявка отправлена</h3>
+          <p class="text-white/90">Спасибо! Мы свяжемся с вами в ближайшее время.</p>
+        </div>`;
+      document.getElementById('lead').scrollIntoView({ behavior:'smooth', block:'start' });
+    } catch (err) {
+      msg.textContent = err.message || 'Что-то пошло не так.';
+      msg.classList.add('text-red-200');
+      btn.disabled = false;
+      btn.textContent = prev;
+    }
+  });
+})();
+</script>
+<script>
+(function(){
+  const input = document.querySelector('#lead-form input[name="phone"]');
+  if (!input) return;
+
+  // отрисовываем +7 (999) 999-99-99 из строки цифр (ровно 11, первая — 7)
+  function format(digs){
+    let v = digs.replace(/\D/g,'');
+    if (v.startsWith('8')) v = '7' + v.slice(1);
+    if (!v.startsWith('7')) v = '7' + v;   // всегда приводим к 7
+    v = v.slice(0, 11);
+
+    const p = v.padEnd(11, '_').split('');
+    return `+7 (${p[1]}${p[2]}${p[3]}) ${p[4]}${p[5]}${p[6]}-${p[7]}${p[8]}-${p[9]}${p[10]}`
+            .replace(/[_\-\)\s]+$/,''); // хвостовые плейсхолдеры убираем
+  }
+
+  // текущие цифры из инпута
+  function digits() { return input.value.replace(/\D/g,''); }
+
+  // при вводе всегда форматируем и ставим каретку в конец
+  input.addEventListener('input', () => {
+    const d = digits();
+    input.value = format(d);
+    const end = input.value.length;
+    input.setSelectionRange(end, end);
+  });
+
+  // при фокусе показываем начало маски
+  input.addEventListener('focus', () => {
+    if (!input.value) {
+      input.value = '+7 (';
+      const end = input.value.length;
+      input.setSelectionRange(end, end);
+    }
+  });
+
+  // при blur чистим, если цифр меньше 11
+  input.addEventListener('blur', () => {
+    if (digits().length < 11) input.value = '';
+  });
+
+  // если пользователь вставляет номер — тоже нормализуем
+  input.addEventListener('paste', (e) => {
+    e.preventDefault();
+    const txt = (e.clipboardData || window.clipboardData).getData('text') || '';
+    input.value = format(txt);
+    const end = input.value.length;
+    input.setSelectionRange(end, end);
+  });
+})();
+</script>
+
+<script>
+(function(){
+  const modal = document.getElementById('measure-modal');
+  const closeBtn = document.getElementById('measure-close');
+  const form = document.getElementById('measure-form');
+  if (!modal || !form) return;
+
+  const msg = document.getElementById('measure-msg');
+  const consent = document.getElementById('measure-consent');
+  const csrf = form.querySelector('input[name="csrfmiddlewaretoken"]');
+  const phone = form.querySelector('input[name="phone"]');
+
+  // === Open/Close ===
+  function open(){
+    modal.classList.remove('hidden'); modal.classList.add('flex');
+    setTimeout(()=>form.querySelector('input[name="name"]')?.focus(), 0);
+    document.body.style.overflow = 'hidden';
+  }
+  function close(){
+    modal.classList.add('hidden'); modal.classList.remove('flex');
+    document.body.style.overflow = '';
+  }
+
+  // навешиваем на все кнопки-триггеры
+  document.querySelectorAll('.js-open-measure,[data-open="measure"]').forEach(btn=>{
+    btn.addEventListener('click', open);
+  });
+  closeBtn?.addEventListener('click', close);
+  modal.addEventListener('click', (e)=>{ if (e.target === modal) close(); });
+  document.addEventListener('keydown', (e)=>{ if (e.key === 'Escape') close(); });
+
+  // === Маска телефона +7 (999) 999-99-99 ===
+  function format(v){
+    v = v.replace(/\D/g,'');
+    if (v.startsWith('8')) v = '7' + v.slice(1);
+    if (!v.startsWith('7')) v = '7' + v;
+    v = v.slice(0,11);
+    const p = v.padEnd(11,'_').split('');
+    return `+7 (${p[1]}${p[2]}${p[3]}) ${p[4]}${p[5]}${p[6]}-${p[7]}${p[8]}-${p[9]}${p[10]}`.replace(/[_\-\)\s]+$/,'');
+  }
+  const digits = () => phone.value.replace(/\D/g,'');
+
+  phone.addEventListener('input', ()=>{
+    phone.value = format(phone.value);
+    const end = phone.value.length; phone.setSelectionRange(end,end);
+  });
+  phone.addEventListener('focus', ()=>{
+    if(!phone.value){ phone.value = '+7 ('; const end = phone.value.length; phone.setSelectionRange(end,end); }
+  });
+  phone.addEventListener('blur', ()=>{ if (digits().length < 11) phone.value=''; });
+  phone.addEventListener('paste', e=>{
+    e.preventDefault();
+    const t=(e.clipboardData||window.clipboardData).getData('text')||'';
+    phone.value=format(t);
+    const end=phone.value.length; phone.setSelectionRange(end,end);
+  });
+
+  // === Submit ===
+  const reRU = /^(?:\+7|8)\s*\(?\d{3}\)?\s*-?\s*\d{3}\s*-?\s*\d{2}\s*-?\s*\d{2}$/;
+
+  form.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    msg.textContent = '';
+    msg.className = 'text-sm min-h-[1.25rem]';
+
+    const name = form.querySelector('input[name="name"]').value.trim();
+    const ph = phone.value.trim();
+
+    if (!consent.checked){ msg.textContent = 'Нужно согласие на обработку данных.'; msg.classList.add('text-red-600'); return; }
+    if (!name){ msg.textContent = 'Введите имя.'; msg.classList.add('text-red-600'); return; }
+    if (!reRU.test(ph)){ msg.textContent = 'Телефон в формате +7XXXXXXXXXX или 8XXXXXXXXXX.'; msg.classList.add('text-red-600'); return; }
+
+    const btn = form.querySelector('button[type="submit"]');
+    const prev = btn.textContent; btn.disabled = true; btn.textContent = 'Отправляем…';
+
+    try {
+      const fd = new FormData(form);
+      const resp = await fetch(form.action, {
+        method: 'POST',
+        headers: { 'X-Requested-With':'XMLHttpRequest', 'X-CSRFToken': csrf?.value || '' },
+        body: fd
+      });
+      const ok = resp.ok;
+      const data = ok ? await resp.json().catch(()=>({ok:true})) : await resp.json().catch(()=>({error:'Ошибка отправки'}));
+      if (!ok || !data.ok) throw new Error(data.error || 'Ошибка отправки');
+
+      form.outerHTML = `
+        <div class="text-center p-6">
+          <div class="mx-auto mb-3 w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 grid place-items-center">✓</div>
+          <h4 class="text-xl font-bold text-slate-900">Заявка отправлена</h4>
+          <p class="text-slate-600 mt-1">Спасибо! Мы свяжемся с вами в ближайшее время.</p>
+        </div>`;
+      setTimeout(close, 3000);
+    } catch (err) {
+      msg.textContent = err.message || 'Что-то пошло не так.';
+      msg.classList.add('text-red-600');
+      btn.disabled = false; btn.textContent = prev;
+    }
+  });
+})();
+</script>
+
+<script>
+(() => {
+  const header = document.getElementById('site-header');
+  const openBtn = document.getElementById('menu-open');
+  const closeBtn = document.getElementById('menu-close');
+  const sheet   = document.getElementById('mobile-sheet');
+
+  // фон/тень при скролле
+  const onScroll = () => {
+    if (window.scrollY > 12) header.classList.add('is-scrolled');
+    else header.classList.remove('is-scrolled');
+  };
+  onScroll(); window.addEventListener('scroll', onScroll, {passive:true});
+
+  // мобильное меню
+  const open = () => { sheet.classList.remove('hidden'); document.body.style.overflow='hidden'; };
+  const close = () => { sheet.classList.add('hidden'); document.body.style.overflow=''; };
+
+  openBtn?.addEventListener('click', open);
+  closeBtn?.addEventListener('click', close);
+  sheet?.addEventListener('click', (e)=>{ if (e.target === sheet) close(); });
+  document.addEventListener('keydown',(e)=>{ if(e.key==='Escape') close(); });
+})();
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', ()=>{
+  document.querySelectorAll('a[href^="/#"]').forEach(link=>{
+    link.addEventListener('click', e=>{
+      const id = link.getAttribute('href').split('#')[1];
+      const target = document.getElementById(id);
+      if(target){
+        e.preventDefault();
+        window.scrollTo({top: target.offsetTop - 80, behavior: 'smooth'});
+        history.pushState(null, '', '/#'+id);
+      }
+    });
+  });
+});
+</script>
+
+</body>
+</html>

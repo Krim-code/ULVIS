@@ -1,0 +1,95 @@
+<footer class="relative bg-slate-950 text-slate-300">
+  <!-- мягкое свечение -->
+  <div class="absolute inset-0 pointer-events-none bg-[radial-gradient(60%_40%_at_50%_0%,rgba(16,185,129,0.12),transparent_60%)]"></div>
+
+  <!-- Контент -->
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20 grid gap-10 sm:gap-12 md:grid-cols-2 lg:grid-cols-8">
+    <!-- 1. Контакты -->
+    <section class="lg:col-span-4">
+      <h3 class="text-lg sm:text-xl font-extrabold text-white">Наши контакты</h3>
+      <dl class="mt-5 space-y-4 text-sm sm:text-base leading-relaxed">
+        <div>
+          <dt class="text-slate-400">Адрес:</dt>
+          <dd class="mt-1">
+            {{ contact.address|default:"г. Москва" }}<br>
+            {% if contact.address %}
+              <a href="https://yandex.ru/maps/?text={{ contact.address|urlencode }}"
+                 target="_blank" rel="noopener"
+                 class="inline-block border-b border-emerald-400/40 hover:text-emerald-400 mt-1">
+                Посмотреть на карте
+              </a>
+            {% endif %}
+          </dd>
+        </div>
+
+        <div>
+          <dt class="text-slate-400">Телефон:</dt>
+          <dd class="mt-2 flex flex-col gap-2">
+            {% if contact.phone %}
+              <a href="tel:{{ tel_href|default:contact.phone }}"
+                 class="hover:text-white font-semibold text-base sm:text-lg">{{ contact.phone }}</a>
+            {% endif %}
+
+            <div class="flex flex-wrap items-center gap-4 text-base mt-1">
+              {% if contact.telegram %}
+                <a href="{{ contact.telegram }}" aria-label="Telegram" class="hover:text-white">
+                  <svg class="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M9.9 17.7l-.4 4.3c.6 0 .9-.3 1.2-.6l2.9-2.8 6-4.4c.6-.4.9-.7 1-1.1.2-.6-.2-.9-.9-.6l-8.4 3.3-3.6-1.1c-.8-.2-.9-.8.2-1.2l14.2-5.5c.7-.2 1.3.2 1.1 1l-2.4 11c-.2.9-.8 1.1-1.6.8l-4.5-1.7-3 2.9c-.3.4-.6.7-1.2.7z"/>
+                  </svg>
+                </a>
+              {% endif %}
+              {% if contact.whatsapp %}
+                <a href="{{ contact.whatsapp }}" aria-label="WhatsApp" class="hover:text-white">
+                  <svg class="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M.5 24l1.7-6A10.9 10.9 0 1112 22.9 10.8 10.8 0 016.1 21L.5 24zm6.5-3.9a8.8 8.8 0 004.9 1.5h.1a8.9 8.9 0 10-8.8-8.8 8.7 8.7 0 001.6 4.9l-.9 3.2 3.1-.8zm7.2-4.3c-.1 0-.3 0-.4-.2l-1.3-.7a.6.6 0 00-.6.1c-.2.2-.7.7-.8.8-.1.1-.3.2-.6.1a6.7 6.7 0 01-3-2.6c-.2-.2-.2-.5 0-.7l.6-.7.3-.4c.1-.1.1-.3 0-.5l-1-2.3c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.7.3a2.2 2.2 0 00-.7 1.6c0 .9.6 1.8.7 2 .9 1.5 2.1 2.8 3.6 3.8 1 .6 1.8 1 2.4 1.3.5.2 1 .2 1.4.1.4-.1 1.3-.5 1.5-1.1.2-.6.2-1 .1-1.1z"/>
+                  </svg>
+                </a>
+              {% endif %}
+              {% if contact.email %}
+                <a href="mailto:{{ contact.email }}" class="hover:text-white text-sm sm:text-base">{{ contact.email }}</a>
+              {% endif %}
+            </div>
+          </dd>
+        </div>
+      </dl>
+    </section>
+
+    <!-- 2. График + Соцсети -->
+    <section class="lg:col-span-4">
+      <h3 class="text-lg sm:text-xl font-extrabold text-white">График работы</h3>
+      {% if contact.schedule %}
+        <div class="mt-5 text-sm sm:text-base text-slate-300 whitespace-pre-line">{{ contact.schedule }}</div>
+      {% else %}
+        <ul class="mt-5 space-y-2 text-sm sm:text-base">
+          <li><span class="text-white font-semibold">Пн–Пт</span> с 09:00 до 18:00</li>
+          <li><span class="text-white font-semibold">Суббота</span> с 10:00 до 17:00</li>
+          <li><span class="text-white font-semibold">Воскресенье</span> — выходной</li>
+        </ul>
+      {% endif %}
+
+      {% if contact.vk or contact.telegram or contact.whatsapp %}
+        <div class="mt-6">
+          <div class="text-sm sm:text-base text-slate-400">Мы в соцсетях</div>
+          <div class="mt-3 flex flex-wrap items-center gap-4">
+            {% if contact.vk %}<a href="{{ contact.vk }}" class="hover:text-white">VK</a>{% endif %}
+            {% if contact.telegram %}<a href="{{ contact.telegram }}" class="hover:text-white">TG</a>{% endif %}
+            {% if contact.whatsapp %}<a href="{{ contact.whatsapp }}" class="hover:text-white">WA</a>{% endif %}
+          </div>
+        </div>
+      {% endif %}
+    </section>
+  </div>
+
+  <!-- Разделитель -->
+  <div class="relative border-t border-slate-800/80 mt-10 sm:mt-12"></div>
+
+  <!-- Низ -->
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-xs sm:text-sm text-slate-400">
+    <div class="text-center sm:text-left">© {% now "Y" %} <span class="text-slate-200">ULVIS</span>. Все права защищены.</div>
+    <nav class="flex flex-wrap justify-center sm:justify-end items-center gap-x-4 sm:gap-x-6 gap-y-2">
+      <a href="/privacy/" class="hover:text-slate-200">Политика конфиденциальности</a>
+      <a href="/contacts/" class="hover:text-slate-200">Реквизиты</a>
+      <a href="/offer/" class="hover:text-slate-200">Оферта</a>
+    </nav>
+  </div>
+</footer>
